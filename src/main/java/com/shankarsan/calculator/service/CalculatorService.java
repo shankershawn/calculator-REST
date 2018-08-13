@@ -12,4 +12,10 @@ import com.shankarsan.calculator.dto.CalculatorOutputDTO;
  */
 public interface CalculatorService {
 	public CalculatorOutputDTO add(CalculatorInputDTO calculatorInputDTO);
+
+	public CalculatorOutputDTO subtract(CalculatorInputDTO calculatorInputDTO);
+
+	public CalculatorOutputDTO multiply(CalculatorInputDTO calculatorInputDTO);
+
+	public CalculatorOutputDTO divide(CalculatorInputDTO calculatorInputDTO);
 }
