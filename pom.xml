@@ -4,7 +4,7 @@
 
   <groupId>com.shankarsan</groupId>
   <artifactId>calculator</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1.RELEASE</version>
   <packaging>jar</packaging>
   <name>calculator</name>
   <url>http://maven.apache.org</url>
@@ -53,11 +53,13 @@
   	<artifactId>spring-boot-starter-parent</artifactId>
   	<version>1.5.11.RELEASE</version>
   </parent>
-  <!-- <build>
+  <build>
   	<plugins>
   		<plugin>
-  			<groupId></groupId>
-  		</plugin>
+  			<groupId>org.springframework.boot</groupId>
+  			<artifactId>spring-boot-maven-plugin</artifactId>
+  			</plugin>
   	</plugins>
-  </build> -->
+  </build>
+  
 </project>
