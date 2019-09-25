@@ -8,9 +8,12 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import com.shankarsan.calculator.dto.CalculatorInputDTO;
 import com.shankarsan.calculator.dto.CalculatorOutputDTO;
+import com.shankarsan.enums.OperatorEnum;
+import com.shankarsan.exception.ServiceException;
 
 /**
  * @author SHANKARSAN
@@ -25,8 +28,7 @@ public class CalculatorServiceImpl implements CalculatorService {
 	 * @param calculatorInputDTO
 	 * @return
 	 */
-	@Override
-	public CalculatorOutputDTO add(CalculatorInputDTO calculatorInputDTO) {
+	private CalculatorOutputDTO add(CalculatorInputDTO calculatorInputDTO) {
 		_logger.info("Entering add method");
 		CalculatorOutputDTO calculatorOutputDTO = null;
 		if(null != calculatorInputDTO && NumberUtils.isParsable(calculatorInputDTO.getOperand_1()) && NumberUtils.isParsable(calculatorInputDTO.getOperand_2())) {
@@ -48,8 +50,7 @@ public class CalculatorServiceImpl implements CalculatorService {
 		return calculatorOutputDTO;
 	}
 
-	@Override
-	public CalculatorOutputDTO subtract(CalculatorInputDTO calculatorInputDTO) {
+	private CalculatorOutputDTO subtract(CalculatorInputDTO calculatorInputDTO) {
 		_logger.info("Entering subtract method");
 		CalculatorOutputDTO calculatorOutputDTO = null;
 		if(null != calculatorInputDTO && NumberUtils.isParsable(calculatorInputDTO.getOperand_1()) && NumberUtils.isParsable(calculatorInputDTO.getOperand_2())) {
@@ -71,8 +72,7 @@ public class CalculatorServiceImpl implements CalculatorService {
 		return calculatorOutputDTO;
 	}
 
-	@Override
-	public CalculatorOutputDTO multiply(CalculatorInputDTO calculatorInputDTO) {
+	private CalculatorOutputDTO multiply(CalculatorInputDTO calculatorInputDTO) {
 		_logger.info("Entering multiply method");
 		CalculatorOutputDTO calculatorOutputDTO = null;
 		if(null != calculatorInputDTO && NumberUtils.isParsable(calculatorInputDTO.getOperand_1()) && NumberUtils.isParsable(calculatorInputDTO.getOperand_2())) {
@@ -94,8 +94,7 @@ public class CalculatorServiceImpl implements CalculatorService {
 		return calculatorOutputDTO;
 	}
 
-	@Override
-	public CalculatorOutputDTO divide(CalculatorInputDTO calculatorInputDTO) {
+	private CalculatorOutputDTO divide(CalculatorInputDTO calculatorInputDTO) {
 		_logger.info("Entering divide method");
 		CalculatorOutputDTO calculatorOutputDTO = null;
 		if(null != calculatorInputDTO && NumberUtils.isParsable(calculatorInputDTO.getOperand_1()) && NumberUtils.isParsable(calculatorInputDTO.getOperand_2())) {
@@ -109,6 +108,25 @@ public class CalculatorServiceImpl implements CalculatorService {
 			calculatorOutputDTO = new CalculatorOutputDTO();
 		}
 		_logger.info("Exiting divide method");
+		return calculatorOutputDTO;
+	}
+
+	@Override
+	public CalculatorOutputDTO calculate(CalculatorInputDTO calculatorInputDTO, BindingResult bindingResult) throws ServiceException {
+		CalculatorOutputDTO calculatorOutputDTO = null;
+		try {
+			if(OperatorEnum.PLUS_SIGN.getValue().equalsIgnoreCase(calculatorInputDTO.getOperator())) {
+				calculatorOutputDTO = add(calculatorInputDTO);
+			}else if(OperatorEnum.MINUS_SIGN.getValue().equalsIgnoreCase(calculatorInputDTO.getOperator())) {
+				calculatorOutputDTO = subtract(calculatorInputDTO);
+			}else if(OperatorEnum.ASTERISK_SIGN.getValue().equalsIgnoreCase(calculatorInputDTO.getOperator())) {
+				calculatorOutputDTO = multiply(calculatorInputDTO);
+			}else if(OperatorEnum.FORWARD_SLASH_SIGN.getValue().equalsIgnoreCase(calculatorInputDTO.getOperator())) {
+				calculatorOutputDTO = divide(calculatorInputDTO);
+			}
+		}catch(Throwable t) {
+			throw new ServiceException(t);
+		}
 		return calculatorOutputDTO;
 	}
 
