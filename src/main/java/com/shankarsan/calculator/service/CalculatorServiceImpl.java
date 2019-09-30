@@ -49,7 +49,7 @@ public class CalculatorServiceImpl implements CalculatorService {
 				calculatorInputDTOForTransformedAdd.setOperand_1(calculatorInputDTO.getOperand_2());
 				calculatorInputDTOForTransformedAdd.setOperand_2(calculatorInputDTO.getOperand_1().replaceAll(CommonConstants.HYPHEN, CommonConstants.EMPTY));
 				calculatorInputDTOForTransformedAdd.setOperator(OperatorEnum.MINUS_SIGN.getValue());
-				calculatorOutputDTO = subtract(calculatorInputDTOForTransformedAdd);
+				calculatorOutputDTO = processSubtract(calculatorInputDTOForTransformedAdd);
 			}else if(!StringUtils.containsAny(calculatorInputDTO.getOperand_1(), CommonConstants.HYPHEN) && StringUtils.containsAny(calculatorInputDTO.getOperand_2(), CommonConstants.HYPHEN)) {
 				calculatorInputDTOForTransformedAdd = new CalculatorInputDTO();
 				calculatorInputDTOForTransformedAdd.setOperand_1(calculatorInputDTO.getOperand_1());
