@@ -28,8 +28,10 @@ public class CalculatorServiceHelper {
 			result = CommonConstants._0;
 		}else if(StringUtils.containsOnly(result, CommonConstants._0.toCharArray()[0], CommonConstants.DOT.toCharArray()[0])) {
 			result = new StringBuilder(CommonConstants._0).append(CommonConstants.DOT).append(CommonConstants._0).toString();
-		}else {
+		}else if(StringUtils.contains(result, CommonConstants.DOT)) {
 			result = result.replaceAll("(^\\-?0*)|(0*$)", CommonConstants.EMPTY);
+		}else {
+			result = result.replaceAll("(^\\-?0*)", CommonConstants.EMPTY);
 		}
 		if(result.startsWith(CommonConstants.DOT)) {
 			result = CommonConstants._0 + result;
