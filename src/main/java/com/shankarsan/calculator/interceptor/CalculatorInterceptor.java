@@ -46,8 +46,10 @@ public class CalculatorInterceptor {
 			baseOutputDto = (BaseOutputDTO)proceedingJoinPoint.proceed();
 			baseOutputDto.setMessage(environment.getProperty(CommonConstants.GENERIC_SUCCESS_MESSAGE));
 		} catch (ServiceException e) {
+			_logger.error(e.getMessage(), e);
 			baseOutputDto.setMessage(e.getMessage());
 		} catch (Throwable t) {
+			_logger.error(t.getMessage(), t);
 			baseOutputDto.setMessage(environment.getProperty(CommonConstants.GENERIC_ERROR_MESSAGE));
 		}
 		return baseOutputDto; 
