@@ -89,7 +89,7 @@ public class CalculatorServiceImpl implements CalculatorService {
 		int[] operand1Array;
 		int[] operand2Array;
 		List<Integer> resultList;
-		maxOperandDecimalLength = calculatorServiceHelper.processOperands(calculatorInputDTO);
+		maxOperandDecimalLength = calculatorServiceHelper.processOperands(calculatorInputDTO, OperatorEnum.PLUS_SIGN);
 		operand1Array = new int [calculatorInputDTO.getOperand_1().length()];
 		operand2Array = new int [calculatorInputDTO.getOperand_2().length()];
 		calculatorServiceHelper.populateOperandArrays(operand1Array, operand2Array, calculatorInputDTO);
@@ -169,7 +169,7 @@ public class CalculatorServiceImpl implements CalculatorService {
 		List<Integer> resultList;
 		boolean isSwap = false;
 		int carryOver = 0;
-		maxOperandDecimalLength = calculatorServiceHelper.processOperands(calculatorInputDTO);
+		maxOperandDecimalLength = calculatorServiceHelper.processOperands(calculatorInputDTO, OperatorEnum.MINUS_SIGN);
 		operand1Array = new int [calculatorInputDTO.getOperand_1().length()];
 		operand2Array = new int [calculatorInputDTO.getOperand_2().length()];
 		calculatorServiceHelper.populateOperandArrays(operand1Array, operand2Array, calculatorInputDTO);
@@ -215,24 +215,59 @@ public class CalculatorServiceImpl implements CalculatorService {
 	/**
 	 * @param calculatorInputDTO
 	 * @return
+	 * @throws ServiceException 
 	 */
-	private CalculatorOutputDTO multiply(CalculatorInputDTO calculatorInputDTO) {
+	private CalculatorOutputDTO multiply(CalculatorInputDTO calculatorInputDTO) throws ServiceException {
 		_logger.info("Entering multiply method");
-		CalculatorOutputDTO calculatorOutputDTO = null;
-		if(null != calculatorInputDTO && NumberUtils.isParsable(calculatorInputDTO.getOperand_1()) && NumberUtils.isParsable(calculatorInputDTO.getOperand_2())) {
-			int multiplierPower = Math.max(
-					StringUtils.substring(calculatorInputDTO.getOperand_1(), calculatorInputDTO.getOperand_1().indexOf(CommonConstants.DOT_REGEX) + 1).length(),
-					StringUtils.substring(calculatorInputDTO.getOperand_2(), calculatorInputDTO.getOperand_2().indexOf(CommonConstants.DOT_REGEX) + 1).length());
-			long operand_1 = (long)(Double.parseDouble(calculatorInputDTO.getOperand_1()) * Math.pow(10.0, multiplierPower));
-			long operand_2 = (long)(Double.parseDouble(calculatorInputDTO.getOperand_2()) * Math.pow(10.0, multiplierPower));
-			double result = (double) ((operand_1 * operand_2) / Math.pow(10.0, multiplierPower * 2));
-			_logger.debug("operand_1: " + calculatorInputDTO.getOperand_1());
-			_logger.debug("operand_2: " + calculatorInputDTO.getOperand_2());
-			_logger.debug("result: " + result);
+		CalculatorOutputDTO calculatorOutputDTO;
+		boolean isNegative = false;
+		String result = null;
+		int currentProduct;
+		int index, index2, totalDecimalShift;;
+		int[] operand1Array;
+		int[] operand2Array;
+		List<Integer> resultList;
+		int carryOver = 0, updatePosition = 0, counter = 0;
+		try {
+			isNegative = StringUtils.containsAny(calculatorInputDTO.getOperand_1(), CommonConstants.HYPHEN) || StringUtils.containsAny(calculatorInputDTO.getOperand_2(), CommonConstants.HYPHEN);
+			calculatorInputDTO.setOperand_1(StringUtils.replace(calculatorInputDTO.getOperand_1(), CommonConstants.HYPHEN, CommonConstants.EMPTY));
+			calculatorInputDTO.setOperand_2(StringUtils.replace(calculatorInputDTO.getOperand_2(), CommonConstants.HYPHEN, CommonConstants.EMPTY));
+			totalDecimalShift = calculatorServiceHelper.processOperands(calculatorInputDTO, OperatorEnum.ASTERISK_SIGN);
+			operand1Array = new int [calculatorInputDTO.getOperand_1().length()];
+			operand2Array = new int [calculatorInputDTO.getOperand_2().length()];
+			calculatorServiceHelper.populateOperandArrays(operand1Array, operand2Array, calculatorInputDTO);
+			resultList = new ArrayList<>();
+			for(index = operand2Array.length - 1; index >= 0; index--) {
+				counter = updatePosition;
+				carryOver = 0;
+				for(index2 = operand1Array.length - 1; index2 >= 0; index2--) {
+					currentProduct = operand1Array[index2] * operand2Array[index] + carryOver;
+					if(updatePosition > 0 && resultList.size() >= counter + 1) {
+						currentProduct += resultList.get(counter);
+						resultList.set(counter, currentProduct % 10);
+						counter++;
+					}else {
+						resultList.add(currentProduct % 10);
+					}
+					carryOver = currentProduct / 10;
+				}
+				updatePosition++;
+				if(carryOver != 0) {
+					resultList.add(carryOver);
+				}
+			}
+			if(totalDecimalShift > 0) {
+				resultList.add(totalDecimalShift, -1);
+			}
+			result = StringUtils.reverse(resultList.stream().map(e -> e == -1 ? CommonConstants.DOT : String.valueOf(e)).collect(Collectors.joining()));
+			result = calculatorServiceHelper.postProcessResult(result);
+			
+			if(isNegative) {
+				result = CommonConstants.HYPHEN + result;
+			}
 			calculatorOutputDTO = new CalculatorOutputDTO(result);
-		}else {
-			_logger.debug("invalid input!");
-			calculatorOutputDTO = new CalculatorOutputDTO();
+		}catch(Throwable t) {
+			throw new ServiceException(t);
 		}
 		_logger.info("Exiting multiply method");
 		return calculatorOutputDTO;

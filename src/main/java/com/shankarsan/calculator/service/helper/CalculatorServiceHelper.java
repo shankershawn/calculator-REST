@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import com.shankarsan.calculator.dto.CalculatorInputDTO;
 import com.shankarsan.constants.CommonConstants;
+import com.shankarsan.enums.OperatorEnum;
 import com.shankarsan.exception.ServiceException;
 
 /**
@@ -47,11 +48,12 @@ public class CalculatorServiceHelper {
 	
 	/**
 	 * @param calculatorInputDTO
+	 * @param operator 
 	 * @return
 	 * @throws ServiceException
 	 */
-	public int processOperands(CalculatorInputDTO calculatorInputDTO) throws ServiceException {
-		int operand1DecimalPartLength = 0, operand2DecimalPartLength = 0, maxOperandDecimalPartLength = 0, operand1WholeNumberLength = 0, operand2WholeNumberLength = 0;
+	public int processOperands(CalculatorInputDTO calculatorInputDTO, OperatorEnum operator) throws ServiceException {
+		int operand1DecimalPartLength = 0, operand2DecimalPartLength = 0, requiredOperandDecimalPartLength = 0, operand1WholeNumberLength = 0, operand2WholeNumberLength = 0;
 		StringBuilder operandBuilder;
 		String[] splitArray = null;
 		
@@ -67,15 +69,24 @@ public class CalculatorServiceHelper {
 		if(splitArray.length > 1) {
 			operand2DecimalPartLength = splitArray[1].length();
 		}
-		maxOperandDecimalPartLength = Math.max(operand1DecimalPartLength,operand2DecimalPartLength);
+		switch(operator) {
+		case PLUS_SIGN:
+			requiredOperandDecimalPartLength = Math.max(operand1DecimalPartLength,operand2DecimalPartLength); break;
+		case MINUS_SIGN:
+			requiredOperandDecimalPartLength = Math.max(operand1DecimalPartLength,operand2DecimalPartLength); break;
+		case ASTERISK_SIGN:
+			requiredOperandDecimalPartLength = Math.addExact(operand1DecimalPartLength,operand2DecimalPartLength); break;
+		case FORWARD_SLASH_SIGN:
+			requiredOperandDecimalPartLength = 0;
+		}
 		
-		if(operand1DecimalPartLength - operand2DecimalPartLength > 0) {
+		if(operand1DecimalPartLength - operand2DecimalPartLength > 0 && operator != OperatorEnum.ASTERISK_SIGN) {
 			operandBuilder = new StringBuilder(calculatorInputDTO.getOperand_2());
 			for(int index = 0; index < (operand1DecimalPartLength - operand2DecimalPartLength); index++) {
 				operandBuilder.append(CommonConstants._0);
 			}
 			calculatorInputDTO.setOperand_2(operandBuilder.toString());
-		}else if(operand2DecimalPartLength - operand1DecimalPartLength > 0) {
+		}else if(operand2DecimalPartLength - operand1DecimalPartLength > 0 && operator != OperatorEnum.ASTERISK_SIGN) {
 			operandBuilder = new StringBuilder(calculatorInputDTO.getOperand_1());
 			for(int index = 0; index < (operand2DecimalPartLength - operand1DecimalPartLength); index++) {
 				operandBuilder.append(CommonConstants._0);
@@ -100,7 +111,7 @@ public class CalculatorServiceHelper {
 		calculatorInputDTO.setOperand_1(StringUtils.replace(calculatorInputDTO.getOperand_1(), CommonConstants.DOT, CommonConstants.EMPTY));
 		calculatorInputDTO.setOperand_2(StringUtils.replace(calculatorInputDTO.getOperand_2(), CommonConstants.DOT, CommonConstants.EMPTY));
 		
-		return maxOperandDecimalPartLength;
+		return requiredOperandDecimalPartLength;
 	}
 	
 	/**
