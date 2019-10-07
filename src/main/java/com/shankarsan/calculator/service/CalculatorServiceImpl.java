@@ -229,7 +229,8 @@ public class CalculatorServiceImpl implements CalculatorService {
 		List<Integer> resultList;
 		int carryOver = 0, updatePosition = 0, counter = 0;
 		try {
-			isNegative = StringUtils.containsAny(calculatorInputDTO.getOperand_1(), CommonConstants.HYPHEN) || StringUtils.containsAny(calculatorInputDTO.getOperand_2(), CommonConstants.HYPHEN);
+			isNegative = (StringUtils.containsAny(calculatorInputDTO.getOperand_1(), CommonConstants.HYPHEN) || StringUtils.containsAny(calculatorInputDTO.getOperand_2(), CommonConstants.HYPHEN)) &&
+					!((StringUtils.containsAny(calculatorInputDTO.getOperand_1(), CommonConstants.HYPHEN) && StringUtils.containsAny(calculatorInputDTO.getOperand_2(), CommonConstants.HYPHEN)));
 			calculatorInputDTO.setOperand_1(StringUtils.replace(calculatorInputDTO.getOperand_1(), CommonConstants.HYPHEN, CommonConstants.EMPTY));
 			calculatorInputDTO.setOperand_2(StringUtils.replace(calculatorInputDTO.getOperand_2(), CommonConstants.HYPHEN, CommonConstants.EMPTY));
 			totalDecimalShift = calculatorServiceHelper.processOperands(calculatorInputDTO, OperatorEnum.ASTERISK_SIGN);
