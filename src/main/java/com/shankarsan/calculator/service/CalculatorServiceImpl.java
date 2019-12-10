@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -277,23 +276,40 @@ public class CalculatorServiceImpl implements CalculatorService {
 	/**
 	 * @param calculatorInputDTO
 	 * @return
+	 * @throws ServiceException 
 	 */
-	private CalculatorOutputDTO divide(CalculatorInputDTO calculatorInputDTO) {
+	/*private CalculatorOutputDTO divide(CalculatorInputDTO calculatorInputDTO) throws ServiceException {
 		_logger.info("Entering divide method");
 		CalculatorOutputDTO calculatorOutputDTO = null;
-		if(null != calculatorInputDTO && NumberUtils.isParsable(calculatorInputDTO.getOperand_1()) && NumberUtils.isParsable(calculatorInputDTO.getOperand_2())) {
-			double result = Double.parseDouble(calculatorInputDTO.getOperand_1()) / Double.parseDouble(calculatorInputDTO.getOperand_2());
-			_logger.debug("operand_1: " + calculatorInputDTO.getOperand_1());
-			_logger.debug("operand_2: " + calculatorInputDTO.getOperand_2());
-			_logger.debug("result: " + result);
-			calculatorOutputDTO = new CalculatorOutputDTO(result);
-		}else {
-			_logger.debug("invalid input!");
-			calculatorOutputDTO = new CalculatorOutputDTO();
+		boolean isNegative;
+		int[] operand1Array;
+		int[] operand2Array;
+		int[] workingDividend;
+		List<String> resultList;
+		int remainder = 0;
+		String workingDividendString;
+		int index1, index2, index3, dividendWholeNumberLength;
+		StringBuilder divisorBuilder;
+		try {
+			isNegative = (StringUtils.containsAny(calculatorInputDTO.getOperand_1(), CommonConstants.HYPHEN) || StringUtils.containsAny(calculatorInputDTO.getOperand_2(), CommonConstants.HYPHEN)) &&
+					!((StringUtils.containsAny(calculatorInputDTO.getOperand_1(), CommonConstants.HYPHEN) && StringUtils.containsAny(calculatorInputDTO.getOperand_2(), CommonConstants.HYPHEN)));
+			calculatorInputDTO.setOperand_1(StringUtils.replace(calculatorInputDTO.getOperand_1(), CommonConstants.HYPHEN, CommonConstants.EMPTY));
+			calculatorInputDTO.setOperand_2(StringUtils.replace(calculatorInputDTO.getOperand_2(), CommonConstants.HYPHEN, CommonConstants.EMPTY));
+			calculatorServiceHelper.processOperands(calculatorInputDTO, OperatorEnum.FORWARD_SLASH_SIGN);
+			
+			operand1Array = new int [calculatorInputDTO.getOperand_1().length()];
+			operand2Array = new int [calculatorInputDTO.getOperand_2().length()];
+			calculatorServiceHelper.populateOperandArrays(operand1Array, operand2Array, calculatorInputDTO);
+			resultList = new ArrayList<>();
+			
+		} catch(ServiceException e) {
+			throw e;
+		} catch(Exception e) {
+			throw new ServiceException(e);
 		}
 		_logger.info("Exiting divide method");
 		return calculatorOutputDTO;
-	}
+	}*/
 
 	/**
 	 * @param calculatorInputDTO
@@ -311,9 +327,9 @@ public class CalculatorServiceImpl implements CalculatorService {
 				calculatorOutputDTO = subtract(calculatorInputDTO);
 			}else if(OperatorEnum.ASTERISK_SIGN.getValue().equalsIgnoreCase(calculatorInputDTO.getOperator())) {
 				calculatorOutputDTO = multiply(calculatorInputDTO);
-			}else if(OperatorEnum.FORWARD_SLASH_SIGN.getValue().equalsIgnoreCase(calculatorInputDTO.getOperator())) {
+			}/*else if(OperatorEnum.FORWARD_SLASH_SIGN.getValue().equalsIgnoreCase(calculatorInputDTO.getOperator())) {
 				calculatorOutputDTO = divide(calculatorInputDTO);
-			}
+			}*/
 		}catch(Throwable t) {
 			throw new ServiceException(t);
 		}
